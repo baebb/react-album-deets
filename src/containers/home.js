@@ -1,19 +1,48 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Grid, Row, Col, Button, FormGroup, InputGroup, FormControl } from 'react-bootstrap';
+import { Grid, Row, Col, Button, ListGroup, Alert } from 'react-bootstrap';
 
-import { navigateAbout, navigateQuery } from '../actions/index';
+// components
+import SearchInput from '../components/search_input';
+import AlbumListItem from '../components/album_listitem';
+
+// actions
+import { searchForAlbum } from '../actions/index';
 
 class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: ''
+      searchText: '',
+      searchError: null,
     }
   }
   
   handleChange(e) {
-    this.setState({ ...this.state, value: e.target.value });
+    this.setState({ searchText: e.target.value, searchError: null });
+  }
+  
+  searchValidator(e) {
+    e.preventDefault();
+    const { searchText } = this.state;
+    if (searchText === '') {
+      this.setState({ searchError: 'NO_INPUT' });
+    } else {
+      this.props.dispatch(searchForAlbum(searchText));
+    }
+  }
+  
+  renderResults(albumData) {
+    return (
+      <AlbumListItem
+        key={albumData.collectionId}
+        albumName={albumData.collectionName}
+        artistName={albumData.artistName}
+        releaseDate={(albumData.releaseDate).substr(0, 4)}
+        albumImg={albumData.artworkUrl60}
+        albumID={albumData.collectionId}
+      />
+    )
   }
   
   render() {
@@ -21,39 +50,35 @@ class Home extends React.Component {
       <Grid>
         <Row>
           <Col xs={12} sm={6} smOffset={3}>
-            <div className="text-center">
-              <h2>Home</h2>
-              <br/><br/>
-              <div>
-                <form>
-                  <FormGroup>
-                    <InputGroup>
-                      <InputGroup.Addon>Query</InputGroup.Addon>
-                      <FormControl
-                        type="text"
-                        value={this.state.value}
-                        placeholder="Enter a string"
-                        onChange={this.handleChange.bind(this)}
-                      />
-                      <InputGroup.Button>
-                        <Button
-                          onClick={() => this.props.dispatch(navigateQuery(this.state.value))}
-                        >
-                          Go
-                        </Button>
-                      </InputGroup.Button>
-                    </InputGroup>
-                  </FormGroup>
+            <div>
+              <br/>
+              <div className="text-center">
+                <form onSubmit={(e) => this.searchValidator(e)}>
+                  <SearchInput
+                    handleChange={(e) => this.handleChange(e)}
+                    searchText={this.state.searchText}
+                    searchError={this.state.searchError}
+                  />
+                  <Button type="submit">
+                    {this.props.searchAttempted ? 'Search again' : 'Search'}
+                  </Button>
                 </form>
               </div>
-              <br/><br/>
-              <div>
-                <Button
-                  onClick={() => this.props.dispatch(navigateAbout())}
-                >
-                  About
-                </Button>
-              </div>
+              <br/>
+              {this.props.searchAttempted === true ?
+                <div>
+                  <h4 className="text-center">Search results:</h4>
+                  {this.props.searchResults.length === 0 ?
+                    <Alert bsStyle="danger">
+                      <p className="text-center">No results found</p>
+                    </Alert>
+                    :
+                    <ListGroup>
+                      {this.props.searchResults.map(this.renderResults)}
+                    </ListGroup>
+                  }
+                </div>
+                : null}
             </div>
           </Col>
         </Row>
@@ -62,4 +87,11 @@ class Home extends React.Component {
   }
 }
 
-export default connect()(Home);
+function mapStateToProps(state) {
+  return {
+    searchAttempted: state.rootReducer.albums.searchAttempted,
+    searchResults: state.rootReducer.albums.searchResults
+  }
+}
+
+export default connect(mapStateToProps, null)(Home);

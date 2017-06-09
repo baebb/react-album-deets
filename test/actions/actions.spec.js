@@ -1,19 +1,15 @@
 import { expect } from 'chai';
 //types
-import { STORE_QUERY } from '../../src/actions/index';
+import { SEARCH_ALBUMS, GET_ALBUM_DETAILS  } from '../../src/actions/index';
 //actions
-import { storeQuery } from '../../src/actions/index';
+import { searchForAlbum, getAlbumDetails } from '../../src/actions/index';
+
 
 describe('Actions', () => {
-  describe('storeQuery', () => {
+  describe('searchForAlbum', () => {
     it('has the correct type', () => {
-      const action = storeQuery();
-      expect(action.type).to.equal( STORE_QUERY );
-    });
-    
-    it('has the correct payload', () => {
-      const action = storeQuery('testDog');
-      expect(action.payload).to.equal('testDog');
+      const action = searchForAlbum();
+      expect(action.type).to.equal( SEARCH_ALBUMS );
     });
   });
 });

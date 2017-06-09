@@ -1,5 +1,6 @@
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunk from 'redux-thunk';
+import promise from 'redux-promise';
 import { routerForBrowser } from 'redux-little-router';
 
 import rootReducer from './reducers';
@@ -8,18 +9,15 @@ const routes = {
   '/': {
     title: 'Home'
   },
-  '/about': {
-    title: 'About'
-  },
-  '/query': {
-    title: 'Query'
+  '/album': {
+    title: 'Album details'
   }
 };
 
 const { reducer, middleware, enhancer } = routerForBrowser({ routes });
 
 const composedMiddleware = [
-  applyMiddleware(thunk, middleware)
+  applyMiddleware(thunk, promise, middleware)
 ];
 
 if (process.env.NODE_ENV !== 'production') {

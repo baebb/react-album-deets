@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
 
-import queryReducer from './reducer_queries';
+import albumReducer from './reducer_albums';
 
 const rootReducer = combineReducers({
-  queries: queryReducer
+  albums: albumReducer
 });
 
 export default rootReducer;
